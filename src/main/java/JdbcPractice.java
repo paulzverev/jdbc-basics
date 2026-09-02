@@ -12,8 +12,7 @@ public class JdbcPractice {
     public static final String PASSWORD = "";
 
     public static void main(String[] args) {
-        normalQuery();
-        preparedQuery();
+        printAllStudents();
     }
 
     public static void normalQuery() {
@@ -80,6 +79,52 @@ public class JdbcPractice {
                     System.out.println(student);
                 }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void printAllStudents() {
+        String query = "SELECT * FROM students;";
+
+        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            while (resultSet.next()) {
+                long id = resultSet.getLong("student_id");
+                String name = resultSet.getString("student_name");
+                int age = resultSet.getInt("student_age");
+                String email = resultSet.getString("student_email");
+
+                Student student = new Student(id, name, age, email);
+                System.out.println(student);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void fillTheTable() {
+        String query = """
+                INSERT INTO students (student_name, student_age, student_email)
+                VALUES (?, ?, ?);
+                """;
+
+        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, "Alice");
+            preparedStatement.setInt(2, 22);
+            preparedStatement.setString(3, "alice@example.com");
+            preparedStatement.executeUpdate();
+
+            preparedStatement.setString(1, "Bob");
+            preparedStatement.setInt(2, 23);
+            preparedStatement.setString(3, "bob@example.com");
+            preparedStatement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
