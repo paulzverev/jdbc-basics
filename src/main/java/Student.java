@@ -1,22 +1,28 @@
 public class Student {
 
-    private Long id;
+    private long id;
     private String name;
     private int age;
     private String email;
 
-    public Student(Long id, String name, int age, String email) {
+    public Student(long id, String name, int age, String email) {
         this.id = id;
         this.name = name;
         this.age = age;
         this.email = email;
     }
 
-    public Long getId() {
+    public Student(String name, int age, String email) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

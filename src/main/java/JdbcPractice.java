@@ -1,5 +1,4 @@
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,12 +6,32 @@ import java.sql.Statement;
 
 public class JdbcPractice {
 
-    public static final String URL = "";
-    public static final String USERNAME = "";
-    public static final String PASSWORD = "";
-
     public static void main(String[] args) {
-        printAllStudents();
+        createStudentTable();
+
+        JdbcStudentDao jdbcStudentDao = new JdbcStudentDao();
+
+        Student student = new Student("Pavel", 19, "pavel@mail.ru");
+
+        jdbcStudentDao.saveStudent(student);
+    }
+
+    public static void createStudentTable() {
+        String query = """
+            CREATE TABLE students (
+            student_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            student_name VARCHAR(255),
+            student_age INT,
+            student_email VARCHAR(255)
+        )
+        """;
+
+        try (Connection connection = DatabaseConnectionPool.getConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void normalQuery() {
@@ -20,7 +39,7 @@ public class JdbcPractice {
                 SELECT * FROM students;
                 """;
 
-        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        try (Connection connection = DatabaseConnectionPool.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(normalQuery)) {
 
@@ -53,7 +72,7 @@ public class JdbcPractice {
                 WHERE student_id > ?;
                 """;
 
-        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        try (Connection connection = DatabaseConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(preparedQuery)) {
 
             System.out.println("Connection established!");
@@ -87,7 +106,7 @@ public class JdbcPractice {
     public static void printAllStudents() {
         String query = "SELECT * FROM students;";
 
-        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        try (Connection connection = DatabaseConnectionPool.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
 
@@ -112,7 +131,7 @@ public class JdbcPractice {
                 VALUES (?, ?, ?);
                 """;
 
-        try (Connection connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        try (Connection connection = DatabaseConnectionPool.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, "Alice");
