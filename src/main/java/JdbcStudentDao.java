@@ -88,4 +88,43 @@ public class JdbcStudentDao {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean updateStudent(Student student) {
+        String query = """
+            UPDATE students
+            SET student_name = ?, student_age = ?, student_email = ?
+            WHERE student_id = ?
+            """;
+
+        try (Connection connection = DatabaseConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, student.getName());
+            preparedStatement.setInt(2, student.getAge());
+            preparedStatement.setString(3, student.getEmail());
+            preparedStatement.setLong(4, student.getId());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deleteStudent(long id) {
+        String query = "DELETE FROM students WHERE student_id = ?";
+
+        try (Connection connection = DatabaseConnectionPool.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setLong(1, id);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
